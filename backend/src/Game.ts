@@ -8,6 +8,7 @@ export class Game{
     public player2:WebSocket;
     private board:Chess
     private startTime:Date;
+    private moveCount:number=0;
 
     constructor(player1:WebSocket,player2:WebSocket){
         this.player1=player1;
@@ -34,17 +35,18 @@ export class Game{
         to:string
     }){
       
-       if(this.board.moves.length % 2 ===0 && socket !== this.player1){  //game uses this.board.moves.length % 2 to determine whose turn it is:
+       if(this.moveCount %2 ===0 && socket !== this.player1){  //game uses this.board.moves.length % 2 to determine whose turn it is:
       //Even number of moves (0, 2, 4...) → White's turn (player1)
       //Odd number of moves (1, 3, 5...) → Black's turn (player2)
 
         return;
        }
-       if(this.board.moves.length % 2 ===1 && socket !== this.player2){
+       if(this.moveCount % 2 ===1 && socket !== this.player2){
            return;
        }
        try{
            this.board.move(move);
+          
        }
         catch(e){
             return;
@@ -65,17 +67,18 @@ export class Game{
             return;
         }
         if(this.board.moves.length % 2 === 0){
-            this.player2.emit(JSON.stringify({
+            this.player2.send(JSON.stringify({
                 type:MOVE,
                 payload:move
             }))
         }
         else{
-            this.player1.emit(JSON.stringify({
+            this.player1.send(JSON.stringify({
                 type:MOVE,
                 payload:move
             }))
         }
+        this.moveCount++;
 
        //check is the game is over
 
